@@ -10,8 +10,5 @@
     "image-size": "^0.8.3",
     "mime-types": "^2.1.27",
     "mongodb": "^6.3.0"
-  },
-  "devDependencies": {
-    "@types/mime-types": "^2.1.4"
   }
 }

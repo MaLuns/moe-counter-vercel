@@ -1,5 +1,11 @@
 {
     "github": {
         "silent": true
-    }
+    },
+    "rewrites": [
+        {
+            "source": "/:path((?!api/).*)",
+            "destination": "api/[name]?name=:path"
+        }
+    ]
 }
