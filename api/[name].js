@@ -16,7 +16,7 @@ const pushDB = async () => {
         const counters = Object.keys(__cache_counter).map(key => {
             return {
                 name: key,
-                num: __cache_counter[key]
+                ...__cache_counter[key]
             }
         })
 
@@ -27,19 +27,47 @@ const pushDB = async () => {
     }
 }
 
-const getCountByName = async (name) => {
+const getCountByName = async (name, referer) => {
     const defaultCount = { name, num: 0 }
     if (name === 'demo' || name === '') return { name, num: '0123456789' }
 
     try {
         if (!(name in __cache_counter)) {
             const counter = await getNum(name) || defaultCount
-            __cache_counter[name] = counter.num + 1
+            const referers = counter.referers ?? []
+            const ref = referers.find(item => item.ref === referer)
+
+            if (ref) {
+                ref.num++
+            } else {
+                referers.push({
+                    ref: referer,
+                    num: 1
+                })
+            }
+
+            __cache_counter[name] = {
+                num: counter.num + 1,
+                referers: referers
+            }
         } else {
-            __cache_counter[name]++
+            __cache_counter[name].num++
+
+            const referers = __cache_counter[name].referers ?? []
+            const ref = referers.find(item => item.ref === referer)
+
+            if (ref) {
+                ref.num++
+            } else {
+                referers.push({
+                    ref: referer,
+                    num: 1
+                })
+            }
+            __cache_counter[name].referers = referers
         }
         pushDB()
-        return { name, num: __cache_counter[name] }
+        return { name, num: __cache_counter[name].num }
     } catch (error) {
         console.log("get count by name is error: ", error)
         return defaultCount
@@ -49,7 +77,7 @@ const getCountByName = async (name) => {
 
 export default async (req, res) => {
     const { name = 'demo', theme = 'moebooru' } = req.query
-    const data = await getCountByName(name)
+    const data = await getCountByName(name, req?.headers?.referer)
 
     let length = PLACES
 
