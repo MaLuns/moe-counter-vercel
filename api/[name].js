@@ -27,7 +27,7 @@ const pushDB = async () => {
     }
 }
 
-const getCountByName = async (name, referer) => {
+const getCountByName = async (name, referer = 'not found referer') => {
     const defaultCount = { name, num: 0 }
     if (name === 'demo' || name === '') return { name, num: '0123456789' }
 
@@ -77,6 +77,8 @@ const getCountByName = async (name, referer) => {
 
 export default async (req, res) => {
     const { name = 'demo', theme = 'moebooru' } = req.query
+    console.log(req?.headers, req?.headers?.referer);
+
     const data = await getCountByName(name, req?.headers?.referer)
 
     let length = PLACES
